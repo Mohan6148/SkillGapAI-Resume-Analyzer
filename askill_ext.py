@@ -247,10 +247,10 @@ class EnhancedTextPreprocessor:
             if "sentencizer" not in self.nlp.pipe_names:
                 self.nlp.add_pipe("sentencizer")
         except OSError:
-            st.warning("🚀 Installing and downloading required NLP models...")
-            import subprocess
-            subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"])
-            self.nlp = spacy.load("en_core_web_sm")
+            st.warning("Using a lightweight spaCy fallback because the small English model is unavailable.")
+            self.nlp = spacy.blank("en")
+            if "sentencizer" not in self.nlp.pipe_names:
+                self.nlp.add_pipe("sentencizer")
             if "sentencizer" not in self.nlp.pipe_names:
                 self.nlp.add_pipe("sentencizer")
         
@@ -279,15 +279,17 @@ class EnhancedTextPreprocessor:
             
             # Extract noun chunks
             noun_chunks = []
-            for chunk in doc.noun_chunks:
-                if len(chunk.text.split()) <= 4:
-                    noun_chunks.append(chunk.text)
+            if doc.has_annotation("DEP"):
+                for chunk in doc.noun_chunks:
+                    if len(chunk.text.split()) <= 4:
+                        noun_chunks.append(chunk.text)
             
             # Extract technical entities
             technical_entities = []
-            for ent in doc.ents:
-                if ent.label_ in ['ORG', 'PRODUCT', 'GPE', 'TECHNOLOGY']:
-                    technical_entities.append((ent.text, ent.label_))
+            if doc.ents:
+                for ent in doc.ents:
+                    if ent.label_ in ['ORG', 'PRODUCT', 'GPE', 'TECHNOLOGY']:
+                        technical_entities.append((ent.text, ent.label_))
             
             # Extract sentences
             sentences = [sent.text.strip() for sent in doc.sents if len(sent.text.strip()) > 10]

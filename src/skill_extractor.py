@@ -1,14 +1,14 @@
 import spacy
 from spacy.matcher import PhraseMatcher
 
-# 1. Load the pre-trained spaCy model
+# 1. Load a spaCy pipeline
 try:
-    # Use the downloaded model
     nlp = spacy.load("en_core_web_sm")
 except OSError:
-    print("Error: The spaCy model 'en_core_web_sm' is not found.")
-    print("Please run: python -m spacy download en_core_web_sm")
-    exit(1)
+    # Fallback for low-disk or offline environments.
+    nlp = spacy.blank("en")
+    if "sentencizer" not in nlp.pipe_names:
+        nlp.add_pipe("sentencizer")
 
 # 2. Function to load the skill dictionary from the text file
 def load_skills(file_path):

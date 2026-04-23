@@ -12,16 +12,21 @@ Features:
 import streamlit as st
 import numpy as np
 import json
+import importlib
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
 # Try to import required libraries
 try:
-    import faiss
+    faiss = importlib.import_module("faiss")
     from sentence_transformers import SentenceTransformer
-    import openai
+    openai = importlib.import_module("openai")
     DEPENDENCIES_AVAILABLE = True
+    MISSING_DEPS = ""
 except ImportError as e:
+    faiss = None
+    SentenceTransformer = None
+    openai = None
     DEPENDENCIES_AVAILABLE = False
     MISSING_DEPS = str(e)
 
@@ -41,6 +46,7 @@ class VectorDatabase:
         self.documents = []
         self.metadata = []
         self.dimension = None
+        self.embeddings = None
         self.is_built = False
         
         self._load_model()
@@ -87,14 +93,21 @@ class VectorDatabase:
             self.documents.extend(documents)
             self.metadata.extend(metadata)
             
-            # Create or update FAISS index
-            if self.index is None:
-                # Create new index
-                self.index = faiss.IndexFlatL2(self.dimension)
-                self.index.add(new_embeddings.astype('float32'))
+            new_embeddings = new_embeddings.astype('float32')
+
+            # Create or update FAISS index when available.
+            if faiss is not None:
+                if self.index is None:
+                    self.index = faiss.IndexFlatL2(self.dimension)
+                    self.index.add(new_embeddings)
+                else:
+                    self.index.add(new_embeddings)
             else:
-                # Add to existing index
-                self.index.add(new_embeddings.astype('float32'))
+                # Fallback to in-memory embeddings search if FAISS is unavailable.
+                if self.embeddings is None:
+                    self.embeddings = new_embeddings
+                else:
+                    self.embeddings = np.vstack([self.embeddings, new_embeddings])
             
             self.is_built = True
             return True
@@ -114,15 +127,25 @@ class VectorDatabase:
         Returns:
             List of search results with documents, metadata, and similarity scores
         """
-        if not self.is_built or not self.index:
+        if not self.is_built:
             return []
         
         try:
             # Generate query embedding
             query_embedding = self.embedding_model.encode([query])
             
-            # Search in FAISS index
-            distances, indices = self.index.search(query_embedding.astype('float32'), k)
+            query_embedding = query_embedding.astype('float32')
+
+            if faiss is not None and self.index is not None:
+                distances, indices = self.index.search(query_embedding, k)
+            elif self.embeddings is not None:
+                # Euclidean distance fallback search.
+                all_distances = np.linalg.norm(self.embeddings - query_embedding[0], axis=1)
+                top_indices = np.argsort(all_distances)[:k]
+                distances = np.array([all_distances[top_indices]])
+                indices = np.array([top_indices])
+            else:
+                return []
             
             results = []
             for i, (dist, idx) in enumerate(zip(distances[0], indices[0])):
@@ -376,19 +399,92 @@ Please provide a helpful answer based on this context."""
         except Exception as e:
             return f"❌ Error generating response: {str(e)}"
 
+
+def _inject_chat_styles() -> None:
+    """Inject custom CSS for a richer and cleaner chatbot sidebar UI."""
+    st.markdown(
+        """
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Space+Grotesk:wght@600;700&display=swap');
+
+        [data-testid="stSidebar"] {
+            background:
+                radial-gradient(120% 80% at 10% 5%, rgba(15, 157, 88, 0.16), transparent 55%),
+                radial-gradient(100% 70% at 90% 10%, rgba(66, 133, 244, 0.15), transparent 45%),
+                linear-gradient(180deg, #0f172a 0%, #101826 100%);
+        }
+
+        [data-testid="stSidebar"] * {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .chat-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            color: #e2f4e8;
+            font-size: 1.05rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .chat-subtitle {
+            color: #b7c9de;
+            font-size: 0.84rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .chat-panel {
+            border: 1px solid rgba(196, 214, 255, 0.16);
+            background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.02));
+            border-radius: 14px;
+            padding: 0.65rem 0.75rem;
+            margin: 0.45rem 0 0.75rem 0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.18);
+        }
+
+        .chat-badge {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 999px;
+            background: rgba(15, 157, 88, 0.18);
+            color: #d4ffe4;
+            margin-top: 0.35rem;
+        }
+
+        .quick-actions-title {
+            font-size: 0.86rem;
+            font-weight: 700;
+            color: #d5e6ff;
+            margin-bottom: 0.3rem;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
 # Global chatbot instance
 chatbot = SkillGapChatbot()
 
 def render_chatbox():
     """Render the chatbox in the sidebar"""
+    _inject_chat_styles()
+
     with st.sidebar:
         st.markdown("---")
-        st.markdown("### 🤖 AI Skill Assistant")
+        st.markdown('<div class="chat-title">🤖 AI Skill Assistant</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="chat-subtitle">Ask focused questions about ATS score, missing skills, and your learning plan.</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown('<div class="chat-panel">', unsafe_allow_html=True)
         
         # Check dependencies
         if not DEPENDENCIES_AVAILABLE:
             st.error("❌ Required libraries not installed")
             st.code("pip install faiss-cpu sentence-transformers openai")
+            st.markdown('</div>', unsafe_allow_html=True)
             return
         
         # API Key Input
@@ -409,6 +505,11 @@ def render_chatbox():
                                 st.success("✅ Knowledge base ready!")
                 else:
                     st.error("❌ Failed to initialize API key")
+
+        if chatbot.is_initialized:
+            st.markdown('<span class="chat-badge">Ready for AI responses</span>', unsafe_allow_html=True)
+
+        st.markdown('</div>', unsafe_allow_html=True)
         
         # Initialize chat history
         if "chat_messages" not in st.session_state:
@@ -456,7 +557,7 @@ def render_chatbox():
         
         # Quick actions
         st.markdown("---")
-        st.markdown("### 🚀 Quick Actions")
+        st.markdown('<div class="quick-actions-title">🚀 Quick Actions</div>', unsafe_allow_html=True)
         
         col1, col2 = st.columns(2)
         

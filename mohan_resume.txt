@@ -1,0 +1,60 @@
+﻿PANDURI MOHAN SRI SAI 
++91 9959299228 ⋄ Tadepalligudem,Andhra Pradesh 
+
+pandurimohansrisai@gmail.com ⋄ L i n k e d I n   
+⋄G i t h u b  
+
+ 
+OBJECTIVE 
+
+ 
+
+To secure a challenging position with a rapidly growing organization that offers opportunities for professional growth 
+and development. I aim to leverage my engineering background and problem-solving skills to contribute to innova- 
+tive projects, drive operational efficiency, and support the company’s strategic goals within a forward-thinking and 
+dynamic business environment. 
+
+EDUCATION 
+
+Bachelor of Technology, Sri Vasavi Engineering College 2022 – 2026 
+Specialization: Artificial Intelligence and Machine Learning 
+Percentage: 69.05% 
+
+Intermediate (MPC), Sri Chaitanya Junior College 2020 – 2022 
+Percentage: 63.00% 
+
+Secondary School Certificate (SSC), Vasav i  Idea l  P ubl i c  School 2019 – 2020 
+Percentage: 71.20% 
+
+SKILLS 
+ 
+
+Technical Skills            Python, Java, MySQL, HTML, CSS, Django 
+Soft Skills Positive Attitude, Teamwork, Time Management, Good Understanding 
+Other Machine Learning, Deep Learning 
+
+CERTIFICATIONS 
+ 
+
+• Web Development using Django — Brainovision Solutions India Pvt. Ltd Apr 2024 
+
+• Microsoft Certified: Azure AI Fundamentals         Jun 2024 
+
+PROJECTS 
+ 
+
+• Diabetes Detection System 2024 
+Python, Django, Scikit-learn, Pandas, NumPy, Matplotlib, Seaborn 
+
+              Developed a machine learning-based web application for early diabetes prediction using medical datasets. 
+
+– Built and tested ML models (Random Forest, SVM, KNN, Naïve Bayes, Gradient Boosting) for accurate diabetes risk 
+prediction. 
+
+– Integrated Django backend with a user-friendly interface for patient data input and result visualization. 
+– Improved diagnostic support by providing reliable, fast, and non-invasive predictions for early detection. 
+
+INTERNSHIPS 
+ 
+
+• Long Tail Multi-Label Classification — Internship at NIT Andhra Pradesh                                        May–Aug 2025

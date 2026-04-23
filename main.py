@@ -12,13 +12,13 @@ def file_exists(file_name):
 
 # Function to check dependencies for a milestone
 def check_dependencies(milestone_file):
-    if milestone_file == "app_milestone1.py":
+    if milestone_file == "adata_ingestion&parsing.py":
         required_files = ["skills_list.txt"]
         for file in required_files:
             if not file_exists(file):
                 return False, f"Missing required file: {file}"
         return True, None
-    elif milestone_file == "app_milestone2.py":
+    elif milestone_file == "app.py":
         return True, None  # No specific file dependencies for Milestone 2
     return False, "Invalid milestone file"
 
@@ -122,11 +122,11 @@ if milestone:
     # Map selection to module details
     milestone_configs = {
         "Milestone 1: Basic Skill Extraction": {
-            "file_name": "app_milestone1.py",
+            "file_name": "adata_ingestion&parsing.py",
             "description": "Basic skill extraction with file ingestion, text cleaning, and rule-based skill detection."
         },
         "Milestone 2: Advanced Skill Extraction": {
-            "file_name": "app_milestone2.py",
+            "file_name": "app.py",
             "description": "Advanced NLP-powered skill extraction with custom NER, semantic analysis, and visualizations."
         }
     }
@@ -163,7 +163,7 @@ if milestone:
     st.markdown("---")
     st.markdown("""
     ### 📋 Instructions
-    1. Ensure `app_milestone1.py` and `app_milestone2.py` are in the same directory as this script.
+    1. Ensure `adata_ingestion&parsing.py` and `app.py` are in the same directory as this script.
     2. For Milestone 1, ensure `skills_list.txt` is present in the directory.
     3. Install required dependencies:
        - For Milestone 1: `pip install streamlit pandas python-docx pdfplumber`
@@ -171,7 +171,7 @@ if milestone:
        - Optional: `python -m spacy download en_core_web_sm` for Milestone 2
     4. Select a milestone and click 'Launch Application' to run.
     5. The selected app should open in a new browser tab. If it fails, check the error message or terminal output.
-    6. If the app redirects back to this page, try running `streamlit run app_milestone1.py` or `app_milestone2.py` directly to isolate the issue.
+    6. If the app redirects back to this page, try running `streamlit run "adata_ingestion&parsing.py"` or `streamlit run app.py` directly to isolate the issue.
     """)
 else:
     st.warning("Please select a milestone to proceed.")
