@@ -115,24 +115,6 @@ Run launcher:
 - You do not need to run `python -m spacy download en_core_web_sm` for basic startup in this project.
 - If you see `ModuleNotFoundError: No module named 'torchvision'` inside Streamlit watcher logs, it is usually a non-blocking warning caused by optional `transformers` image modules.
 
-## GitHub Push Commands
-
-Use these commands when you are ready to push:
-
-```powershell
-git add .
-git commit -m "UI polish, analysis workflow improvements, and README update"
-git branch -M main
-git remote add origin https://github.com/<your-username>/<your-repo>.git
-git push -u origin main
-```
-
-If remote already exists:
-
-```powershell
-git push
-```
-
 ## License
 
-This project currently has no explicit license file. Add a `LICENSE` file before public distribution if needed.
+This project has MIT License
